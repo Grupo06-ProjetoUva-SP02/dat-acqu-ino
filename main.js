@@ -60,10 +60,15 @@ const serial = async (
 
             // este insert irá inserir os dados na tabela "medida"
             await poolBancoDados.execute(
-                'INSERT INTO medida (umidade, data_horario, fk_sensor) VALUES (?, ?, ?)',
-                [sensorAnalogico, 'NOW()', 1]
+                'INSERT INTO medida (umidade, fk_sensor) VALUES (?, ?)',
+                [sensorAnalogico, 1]
             );
             console.log("valores inseridos no banco: ", sensorAnalogico);
+            await poolBancoDados.execute(
+                'INSERT INTO medida (umidade, fk_sensor) VALUES (?, ?)',
+                [sensorAnalogico + 12 , 2]
+            );
+            console.log("valores inseridos no banco com o sensor 2: ", sensorAnalogico);
 
         }
 
