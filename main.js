@@ -51,12 +51,57 @@ const serial = async (
         console.log(data);
         const valores = data.split(';');
         const sensorAnalogico = parseInt(valores[0]);
+        const sensorSimulado = sensorAnalogico + 12;
+        const umidadeMinima = 62
+        const umidadeMaxima = 75
+        let porcentagem = sensorAnalogico * 100 / umidadeMinima
+        let porcentagemSimulada = sensorSimulado * 100 / umidadeMinima
 
         // armazena os valores dos sensores nos arrays correspondentes
         valoresSensorAnalogico.push(sensorAnalogico);
 
         // insere os dados no banco de dados (se habilitado)
         if (HABILITAR_OPERACAO_INSERIR) {
+            let descricao = ""
+            let nivel = 0
+
+
+            // Alerta sensor 1 (umidade abaixo)
+            if(sensorAnalogico < umidadeMinima){
+                descricao = `A umidade está ${100 - porcentagem}% abaixo do mínimo`
+
+                //Verificar o nivel do alerta
+                if(porcentagem < 75){ // Se a umidade estiver 20% abaixo do minimo
+                    nivel = 1
+                } else if (porcentagem < 50){
+                    nivel = 2
+                } else {
+                    nivel = 3
+                }
+                // Inserção na tabela alerta
+                await poolBancoDados.execute(
+                'INSERT INTO alerta (medida, descricao, nivel, fk_sensor) VALUES (?, ?, ?, ?)',
+                [sensorAnalogico, descricao, nivel, 1]
+            );
+            }
+            // Alerta sensor 2 (umidade abaixo)
+            if(sensorSimulado < umidadeMinima){
+                descricao = `A umidade está ${100 - porcentagem}% abaixo do mínimo`
+
+                //Verificar o nivel do alerta
+                if(porcentagemSimulada < 75){ // Se a umidade estiver 20% abaixo do minimo
+                    nivel = 1
+                } else if (porcentagemSimulada < 50){
+                    nivel = 2
+                } else {
+                    nivel = 3
+                }
+                // Inserção na tabela alerta
+                await poolBancoDados.execute(
+                'INSERT INTO alerta (medida, descricao, nivel, fk_sensor) VALUES (?, ?, ?, ?)',
+                [sensorAnalogico, descricao, nivel, 2]
+            );
+            }
 
             // este insert irá inserir os dados na tabela "medida"
             await poolBancoDados.execute(
@@ -66,9 +111,9 @@ const serial = async (
             console.log("valores inseridos no banco: ", sensorAnalogico);
             await poolBancoDados.execute(
                 'INSERT INTO medida (umidade, fk_sensor) VALUES (?, ?)',
-                [sensorAnalogico + 12 , 2]
+                [sensorSimulado, 2]
             );
-            console.log("valores inseridos no banco com o sensor 2: ", sensorAnalogico);
+            console.log("valores inseridos no banco com o sensor simulado: ", sensorSimulado);
 
         }
 
