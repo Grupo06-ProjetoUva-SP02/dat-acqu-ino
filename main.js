@@ -71,11 +71,11 @@ const serial = async (
                 descricao = `A umidade está ${100 - porcentagem}% abaixo do mínimo`
 
                 //Verificar o nivel do alerta
-                if(porcentagem < 75){ // Se a umidade estiver 20% abaixo do minimo
+                if(porcentagem < 75){ // Se a umidade estiver 25% abaixo do minimo
                     nivel = 1
-                } else if (porcentagem < 50){
+                } else if (porcentagem < 50){ // Se a umidade estiver 50% abaixo do minimo
                     nivel = 2
-                } else {
+                } else { // Se a umidade estiver 75% abaixo do minimo
                     nivel = 3
                 }
                 // Inserção na tabela alerta
