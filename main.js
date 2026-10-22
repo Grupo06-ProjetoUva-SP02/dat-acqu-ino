@@ -52,8 +52,8 @@ const serial = async (
         const valores = data.split(';');
         const sensorAnalogico = parseInt(valores[0]);
         const sensorSimulado = sensorAnalogico + 12;
-        const umidadeMinima = 62
-        const umidadeMaxima = 75
+        const umidadeMinima = 30 // a real é 45, está com 30 para fins de simuulação
+        const umidadeMaxima = 80
         let porcentagem = sensorAnalogico * 100 / umidadeMinima
         let porcentagemSimulada = sensorSimulado * 100 / umidadeMinima
 
@@ -65,19 +65,22 @@ const serial = async (
             let descricao = ""
             let nivel = 0
 
-
             // Alerta sensor 1 (umidade abaixo)
             if(sensorAnalogico < umidadeMinima){
-                descricao = `A umidade está ${100 - porcentagem}% abaixo do mínimo`
+                descricao = `A umidade está ${(100 - porcentagem).toFixed(0)}% abaixo do mínimo`
 
                 //Verificar o nivel do alerta
-                if(porcentagem < 75){ // Se a umidade estiver 25% abaixo do minimo
+                if(porcentagem > 75){ // Se a umidade estiver 25% abaixo do minimo
                     nivel = 1
                 } else if (porcentagem < 50){ // Se a umidade estiver 50% abaixo do minimo
                     nivel = 2
                 } else { // Se a umidade estiver 75% abaixo do minimo
                     nivel = 3
                 }
+
+                // Debug para ver o nível de umidade e a porcentagem
+                console.log("nivel: ", nivel, "porcentagem: ", porcentagem)
+
                 // Inserção na tabela alerta
                 await poolBancoDados.execute(
                 'INSERT INTO alerta (medida, descricao, nivel, fk_sensor) VALUES (?, ?, ?, ?)',
@@ -86,10 +89,10 @@ const serial = async (
             }
             // Alerta sensor 2 (umidade abaixo)
             if(sensorSimulado < umidadeMinima){
-                descricao = `A umidade está ${100 - porcentagem}% abaixo do mínimo`
+                descricao = `A umidade está ${(100 - porcentagem).toFixed(2)}% abaixo do mínimo`
 
                 //Verificar o nivel do alerta
-                if(porcentagemSimulada < 75){ // Se a umidade estiver 20% abaixo do minimo
+                if(porcentagemSimulada > 75){ // Se a umidade estiver 20% abaixo do minimo
                     nivel = 1
                 } else if (porcentagemSimulada < 50){
                     nivel = 2
