@@ -8,11 +8,12 @@ const SERIAL_BAUD_RATE = 9600;
 const SERVIDOR_PORTA = 3300;
 
 // habilita ou desabilita a inserção de dados no banco de dados
-const HABILITAR_OPERACAO_INSERIR = true;
+const HABILITAR_OPERACAO_INSERIR = false;
 
 // função para comunicação serial
 const serial = async (
-    valoresSensorAnalogico
+    valoresSensorAnalogico,
+    valoresSensorSimulado
 ) => {
 
     // conexão com o banco de dados MySQL
@@ -59,6 +60,7 @@ const serial = async (
 
         // armazena os valores dos sensores nos arrays correspondentes
         valoresSensorAnalogico.push(sensorAnalogico);
+        valoresSensorSimulado.push(sensorSimulado);
 
         // insere os dados no banco de dados (se habilitado)
         if (HABILITAR_OPERACAO_INSERIR) {
@@ -130,7 +132,8 @@ const serial = async (
 
 // função para criar e configurar o servidor web
 const servidor = (
-    valoresSensorAnalogico
+    valoresSensorAnalogico,
+    valoresSensorSimulado
 ) => {
     const app = express();
 
@@ -150,20 +153,26 @@ const servidor = (
     app.get('/sensores/analogico', (_, response) => {
         return response.json(valoresSensorAnalogico);
     });
+    app.get('/sensores/simulado', (_, response) => {
+        return response.json(valoresSensorSimulado);
+    });
 }
 
 // função principal assíncrona para iniciar a comunicação serial e o servidor web
 (async () => {
     // arrays para armazenar os valores dos sensores
     const valoresSensorAnalogico = [];
+    const valoresSensorSimulado = [];
 
     // inicia a comunicação serial
     await serial(
-        valoresSensorAnalogico
+        valoresSensorAnalogico,
+        valoresSensorSimulado
     );
 
     // inicia o servidor web
     servidor(
-        valoresSensorAnalogico
+        valoresSensorAnalogico,
+        valoresSensorSimulado
     );
 })();
